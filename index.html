@@ -939,17 +939,13 @@ nav ul li {
             const encodedMessage = encodeURIComponent(whatsappMessage);
             
             // Número do WhatsApp (verifique se está correto)
-            const whatsappNumber = "558498704445"; // Substitua pelo seu número correto
+            const whatsappNumber = "+5584987044445"; // Substitua pelo seu número correto
             
             // Tentar abrir o WhatsApp
             setTimeout(() => {
-                // Para dispositivos móveis
-                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-                    window.location.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
-                } else {
-                    // Para desktop
-                    window.open(`https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`, '_blank');
-                }
+               
+              // URL universal que funciona em todos os dispositivos
+window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
                 
                 btn.classList.remove('btn--loading');
                 
