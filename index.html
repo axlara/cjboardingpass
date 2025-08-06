@@ -804,69 +804,157 @@ nav ul li {
 </footer>
 
     <script>
+        // Menu mobile toggle
+        document.querySelector('.menu-toggle').addEventListener('click', function() {
+            document.querySelector('nav').classList.toggle('active');
+        });
+
+        // Smooth scroll for navigation links
+        document.querySelectorAll('nav a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Fechar o menu mobile se estiver aberto
+                    document.querySelector('nav').classList.remove('active');
+                }
+            });
+        });
+
+        // Formatação de telefone
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 2) {
+                value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+            }
+            if (value.length > 10) {
+                value = `${value.substring(0, 10)}-${value.substring(10)}`;
+            }
+            this.value = value.substring(0, 15);
+        });
+
+        // Envio do formulário para WhatsApp
         document.getElementById('flightRequestForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const btn = this.querySelector('button[type="submit"]');
             btn.classList.add('btn--loading');
             
-            // Coletar dados do formulário
-            const formData = new FormData(this);
-            let whatsappMessage = "📌 *NOVA COTAÇÃO - CJ BOARDING PASS* 📌\n\n";
+            // Validação de campos obrigatórios
+            const requiredFields = ['tripType', 'passengers', 'departure', 'destination', 
+                                  'departureDate', 'fullName', 'birthDate', 'documentType', 
+                                  'documentNumber', 'nationality', 'email', 'phone'];
             
-            // Adicionar todos os campos ao mensagem
-            for (let [key, value] of formData.entries()) {
-                const label = document.querySelector(`label[for="${key}"]`)?.textContent || key;
-                whatsappMessage += `*${label}:* ${value}\n`;
+            for (const field of requiredFields) {
+                if (!this.elements[field].value) {
+                    alert(`Por favor, preencha o campo "${this.elements[field].labels[0].textContent}"`);
+                    this.elements[field].focus();
+                    btn.classList.remove('btn--loading');
+                    return;
+                }
             }
             
-            whatsappMessage += "\n📅 Recebido em: " + new Date().toLocaleString();
+            // Mapear campos para nomes mais amigáveis
+            const fieldLabels = {
+                tripType: 'Tipo de Viagem',
+                passengers: 'Passageiros',
+                departure: 'Origem',
+                destination: 'Destino',
+                departureDate: 'Data de Ida',
+                returnDate: 'Data de Volta',
+                cabinClass: 'Classe',
+                fullName: 'Nome Completo',
+                birthDate: 'Data de Nascimento',
+                documentType: 'Documento de Viagem',
+                documentNumber: 'Número do Documento',
+                documentExpiry: 'Validade do Documento',
+                nationality: 'Nacionalidade',
+                email: 'E-mail',
+                phone: 'Telefone',
+                specialRequests: 'Observações'
+            };
+            
+            // Função para formatar data
+            const formatDate = (dateString) => {
+                if (!dateString) return 'Não informado';
+                const date = new Date(dateString);
+                return date.toLocaleDateString('pt-BR');
+            };
+            
+            // Construir mensagem para WhatsApp
+            let whatsappMessage = "📌 *NOVA COTAÇÃO - CJ BOARDING PASS* 📌\n\n";
+            
+            // Adicionar campos preenchidos à mensagem
+            for (let [key, value] of new FormData(this).entries()) {
+                if (!value) continue; // Pular campos vazios
+                
+                const label = fieldLabels[key] || key;
+                let displayValue = value;
+                
+                // Formatar datas
+                if (key.includes('Date')) {
+                    displayValue = formatDate(value);
+                }
+                
+                // Formatar tipo de viagem
+                if (key === 'tripType') {
+                    displayValue = {
+                        'roundtrip': 'Ida e Volta',
+                        'oneway': 'Somente Ida',
+                        'multicity': 'Vários Destinos'
+                    }[value] || value;
+                }
+                
+                // Formatar classe
+                if (key === 'cabinClass') {
+                    displayValue = {
+                        'economy': 'Econômica',
+                        'premium': 'Premium Econômica',
+                        'business': 'Executiva',
+                        'first': 'Primeira Classe'
+                    }[value] || value;
+                }
+                
+                whatsappMessage += `*${label}:* ${displayValue}\n`;
+            }
+            
+            whatsappMessage += "\n📅 Recebido em: " + new Date().toLocaleString('pt-BR');
             
             // Codificar mensagem para URL
             const encodedMessage = encodeURIComponent(whatsappMessage);
             
-            // Número do WhatsApp (substitua pelo seu)
-            const whatsappNumber = "5584996249406"; // Código país + DDD + número
+            // Número do WhatsApp (verifique se está correto)
+            const whatsappNumber = "5584987044445"; // Substitua pelo seu número correto
             
-            // Abrir WhatsApp
+            // Tentar abrir o WhatsApp
             setTimeout(() => {
-                window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
-                btn.classList.remove('btn--loading');
-                this.reset();
+                // Para dispositivos móveis
+                if (/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                    window.location.href = `https://api.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`;
+                } else {
+                    // Para desktop
+                    window.open(`https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${encodedMessage}`, '_blank');
+                }
                 
-                // Feedback opcional
-                alert('Formulário enviado com sucesso! Você será redirecionado para o WhatsApp.');
+                btn.classList.remove('btn--loading');
+                
+                // Feedback visual
+                const originalText = btn.textContent;
+                btn.textContent = 'Enviado!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    this.reset();
+                }, 2000);
             }, 1000);
         });
-
-        // Validação básica do telefone
-        document.getElementById('phone').addEventListener('input', function(e) {
-            this.value = this.value.replace(/\D/g, '');
-        });
-        // Adicione isso no final do seu <script>
-document.querySelector('.menu-toggle').addEventListener('click', function() {
-    document.querySelector('nav').classList.toggle('active');
-});
-// Adicione isso ao seu script existente
-document.querySelectorAll('nav a').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        
-        if(targetElement) {
-            window.scrollTo({
-                top: targetElement.offsetTop,
-                behavior: 'smooth'
-            });
-            
-            // Fechar o menu mobile se estiver aberto
-            document.querySelector('nav').classList.remove('active');
-        }
-    });
-    
-});
     </script>
 </body>
 </html>
