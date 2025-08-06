@@ -185,7 +185,7 @@ nav ul li {
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 40px; /* Aumentei o padding lateral */
+            padding: 0 40px; 
             position: relative;
             z-index: 1;
         }
@@ -416,11 +416,14 @@ nav ul li {
     }
     
     /* Ajuste do background até as bandeiras */
-    .hero {
-        position: relative;
-        padding-top: 40px;
-        padding-bottom: 20px;
-    }
+.hero {
+  position: relative;
+  width: 100vw; /* ocupa 100% da largura da viewport */
+  margin: 0;
+  padding: 40px 20px;
+  box-sizing: border-box;
+  overflow-x: hidden; /* opcional */
+}
     
     .hero::before {
         content: '';
@@ -439,6 +442,10 @@ nav ul li {
       .menu-toggle {
         display: block;
     }
+    main.container {
+  padding: 0;
+}
+
     
     nav {
         position: absolute;
@@ -508,8 +515,8 @@ nav ul li {
             }
             
             .flag {
-                width: 40px;
-                height: 28px;
+                width: 36px;
+                height: 24px;
             }
             
             .booking-form {
@@ -932,7 +939,7 @@ nav ul li {
             const encodedMessage = encodeURIComponent(whatsappMessage);
             
             // Número do WhatsApp (verifique se está correto)
-            const whatsappNumber = "5584996249406"; // Substitua pelo seu número correto
+            const whatsappNumber = "558498704445"; // Substitua pelo seu número correto
             
             // Tentar abrir o WhatsApp
             setTimeout(() => {
