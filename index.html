@@ -811,6 +811,21 @@ nav ul li {
 </footer>
 
     <script>
+        // Função formatDate deve ser declarada primeiro
+const formatDate = (dateString) => {
+    if (!dateString) return 'Não informado';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+};
+
+// Resto do código...
+document.getElementById('flightRequestForm').addEventListener('submit', function(e) {
+    // ...
+    if (key.includes('Date')) {
+        displayValue = formatDate(value); // Agora funciona!
+    }
+    // ...
+});
         // Menu mobile toggle
         document.querySelector('.menu-toggle').addEventListener('click', function() {
             document.querySelector('nav').classList.toggle('active');
@@ -904,7 +919,7 @@ document.getElementById('phone').addEventListener('input', function(e) {
             };
             
             // Construir mensagem para WhatsApp
-            let whatsappMessage = "📌 *NOVA COTAÇÃO - CJ BOARDING PASS* 📌\n\n";
+            let whatsappMessage = "📌 *NOVA COTAÇÃO - CJ BOARDING PASS* 📌\n";
             
             // Adicionar campos preenchidos à mensagem
             for (let [key, value] of new FormData(this).entries()) {
@@ -926,7 +941,7 @@ document.getElementById('phone').addEventListener('input', function(e) {
                         'multicity': 'Vários Destinos'
                     }[value] || value;
                 }
-                
+
                 // Formatar classe
                 if (key === 'cabinClass') {
                     displayValue = {
