@@ -837,16 +837,23 @@ nav ul li {
         });
 
         // Formatação de telefone
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let value = this.value.replace(/\D/g, '');
-            if (value.length > 2) {
-                value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
-            }
-            if (value.length > 10) {
-                value = `${value.substring(0, 10)}-${value.substring(10)}`;
-            }
-            this.value = value.substring(0, 15);
-        });
+        // Modifique o event listener do telefone para:
+document.getElementById('phone').addEventListener('input', function(e) {
+    let value = this.value.replace(/\D/g, '');
+    if (value.length > 0) {
+        if (value.length <= 2) {
+            value = `(${value}`;
+        } else if (value.length <= 6) {
+            value = `(${value.substring(0, 2)}) ${value.substring(2)}`;
+        } else if (value.length <= 10) {
+            value = `(${value.substring(0, 2)}) ${value.substring(2, 6)}-${value.substring(6)}`;
+        } else {
+            value = `(${value.substring(0, 2)}) ${value.substring(2, 7)}-${value.substring(7, 11)}`;
+        }
+    }
+    this.value = value.substring(0, 15);
+});
+  
 
         // Envio do formulário para WhatsApp
         document.getElementById('flightRequestForm').addEventListener('submit', function(e) {
@@ -939,7 +946,7 @@ nav ul li {
             const encodedMessage = encodeURIComponent(whatsappMessage);
             
             // Número do WhatsApp (verifique se está correto)
-            const whatsappNumber = "+5584987044445"; // Substitua pelo seu número correto
+            const whatsappNumber = "5584987044445"; // Substitua pelo seu número correto
             
             // Tentar abrir o WhatsApp
             setTimeout(() => {
